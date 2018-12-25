@@ -18,14 +18,186 @@ consumes:
 produces:
   - application/json
 paths:
-  /account:
-    # binds a127 app logic to a route
+  /signIn:
     x-swagger-router-controller: account
-    put:
-      description: Create account by public key
-      # used as the method name of the controller
-      operationId: createAccount
+    post:
+      description: Signin account with public key and signature
+      operationId: signIn
       parameters:
+        - name: body
+          in: body
+          description: parameter body with public key and signature
+          schema:
+            $ref: '#/definitions/SignIn'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /signUp:
+    x-swagger-router-controller: account
+    post:
+      description: Create account by publicKey, require transaction be created by client
+      operationId: signUp
+      parameters:
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /account/{publicKey}:
+    x-swagger-router-controller: account
+    get:
+      description: get account info
+      operationId: profile
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+    post:
+      description: Update account require transaction to commit
+      operationId: update
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+  /tweet:
+    x-swagger-router-controller: tweet
+    get:
+      description: get all tweet
+      operationId: getAll
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+    post:
+      description: Post new tweet
+      # used as the method name of the controller
+      operationId: post
+      parameters:
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+  /tweet/{tweetId}/interact:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: tweet
+    get:
+      description: get all interact in this tweet
+      # used as the method name of the controller
+      operationId: get
+      parameters:
+        - name: tweetId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+    post:
+      description: post new interact in this tweet
+      operationId: interact
+      parameters:
+        - name: tweetId
+          in: path
+          description: id of topic
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+  /payment/{publicKey}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: payment
+    get:
+      description: get balance in my account
+      # used as the method name of the controller
+      operationId: balance
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
         - name: body
           in: body
           description: parameter with public key
@@ -36,12 +208,56 @@ paths:
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
+            $ref: "#/definitions/MessageResponse"
         # responses may fall through to errors
         default:
           description: Error
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: "#/definitions/ErrorResponse"        
+    post:
+      description: send payment to orther account
+      # used as the method name of the controller
+      operationId: send
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"           
+  /payment/history:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: payment
+    get:
+      description: Get all history payment
+      # used as the method name of the controller
+      operationId: history
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -49,17 +265,40 @@ definitions:
   CreateAccount:
     type: object
     required:
+      - transaction
+    properties:
+      transaction:
+        type: string
+  PostTransaction:
+    type: object
+    required:
+      - transaction
+    properties:
+      transaction:
+        type: string
+  SignIn:
+    type: object
+    required:
       - publicKey
+      - signature
     properties:
       publicKey:
         type: string
-  HelloWorldResponse:
+      signature:
+        type: string
+  MessageResponse:
     properties:
+      statusCode:
+        type: object
       message:
+        type: object
+      value:
         type: object
   ErrorResponse:
     required:
       - message
     properties:
+      statusCode:
+        type: integer
       message:
         type: string

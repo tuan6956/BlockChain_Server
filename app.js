@@ -3,13 +3,18 @@
 var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
 var Redisson = require('./database/redis')
+var Block = require('./models/block')
 module.exports = app; // for testing
 
 var config = {
   appRoot: __dirname // required config
 };
 app.redis = new Redisson();
-app.redis.connect();
+app.redis.connect('103.114.107.16');
+
+var block = new Block();
+block.syncBlock(app.redis);
+
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
 

@@ -15,11 +15,13 @@ module.exports = {
 function createAccount(req, res) {
     const redis = req.app.redis;
     //redis.getOneHash('list1',"a").then(value => {console.log('123213');console.log(value);});;
-    redis.getOneHash('list1',"a").then(value => {
+    var x = {a: "1"};
+    //insertHash
+    redis.getOneHash('list1',"a3").then(value => {
         res.json(value);
     }).catch(err => {
         console.log(err);
-    });;
+    });
 
     //console.log(rs);
     // var body = req.swagger.params.body;

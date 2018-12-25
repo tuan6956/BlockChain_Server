@@ -2,17 +2,35 @@
 
 var Redlock = require('redlock');
 var redis = require('redis');
+var jsonify = require('redis-jsonify')
+
 var RedisHash = require('./redisHash');
 var RedisList = require('./redisList');
+var RedisString = require('./redisString');
 
 class Redisson {
     constructor() {
         this.lockRessource.bind(this);
         this.unlockLock.bind(this);
+        this.init.bind(this);
     }
+    init() {
+        if (!this.redisHash) {
+            console.log("undefind redisHash");
+            this.redisHash = new RedisHash(this.client);
+        }
+        if (!this.redisList) {
+            console.log("undefind redisList");
+            this.redisList = new RedisList(this.client);
+        }
+        if (!this.redisString) {
+            console.log("undefind redisList");
+            this.redisString = new RedisString(this.client);
+        }
+    };
 
     connect(host = '127.0.0.1', port = 6379) {
-        this.client = redis.createClient(port, host);
+        this.client = jsonify(redis.createClient(port, host));
         this.redlock = new Redlock(
             [this.client], {
                 driftFactor: 0.01,
@@ -24,6 +42,7 @@ class Redisson {
         this.client.on('connect', function () {
             console.log("Redis default connection open to " + host + ":" + port);
             console.log("connected");
+
         });
 
         this.client.on('error', function (err) {
@@ -44,14 +63,7 @@ class Redisson {
     }
 
     lockRessource(ressource_id = 'resource') {
-        if (!this.redisHash) {
-            console.log("undefind redisHash");
-            this.redisHash = new RedisHash(this.client);
-        }
-        if (!this.redisList) {
-            console.log("undefind redisList");
-            this.redisList = new RedisList(this.client);
-        }
+        this.init();
         return this.redlock.lock(ressource_id, 2000);
     };
 
@@ -62,58 +74,84 @@ class Redisson {
     };
 
     getList(id) {
-        console.log(this.lockRessource)
-        this.lockRessource.then(lock => {
-            var result = this.redisList.findOne(id);
-            unlockLock(lock);
-            return result;
-        })
+        this.init();
+        return this.redisList.findOne(id);
     }
 
-    insertList(id, value) {
-        lockRessource.then(lock => {
-            var result = this.redisList.insert(id, value);
-            unlockLock(lock);
-            return result;
-        })
-        return this.redisList.insert(id, value);
-    }
-
-    removeList(id) {
-        return this.redisHash.remove(id);
-    }
-
-    async getOneHash(table, id) {
-        if (!this.redisList) {
-            console.log("undefind redisList");
-            this.redisHash = new RedisList(this.client);
-        }
+    async insertList(id, value) {
         var result;
-        return this.redisHash.findOne(table, id);
-
-        // await this.lockRessource().then(lock => {
-        //     console.log(lock);
-        //     result = this.redisHash.findOne(table, id);
-        //     this.unlockLock(lock);
-        // })
+        await this.lockRessource().then(lock => {
+            result = this.redisList.insert(id, JSON.stringify(value));
+            this.unlockLock(lock);
+        })
         return result;
-
     }
+
+    async removeList(id) {
+        var result;
+        this.lockRessource().then(lock => {
+            result = this.redisHash.remove(id);
+            this.unlockLock(lock);
+        })
+        return result
+    }
+
+    getOneHash(table, id) {
+        this.init();
+        return this.redisHash.findOne(table, id);
+    }
+
     getAllHash(table) {
+        this.init();
         return this.redisHash.findAll(table);
     }
-    insertHash(table, id, value) {
-        console.log(this.redisHash)
-        return this.redisHash.insert(table, id, value);
+
+    async insertHash(table, id, value) {
+        var result;
+        await this.lockRessource().then(lock => {
+            result = this.redisHash.insert(table, id, JSON.stringify(value));
+            this.unlockLock(lock);
+        })
+        return result;
     }
-    updateHash(table, id, value) {
-        return this.redisHash.update(table, id, value);
+    async updateHash(table, id, value) {
+        var result;
+        await this.lockRessource().then(lock => {
+            result = this.redisHash.update(table, id, JSON.stringify(value));
+            this.unlockLock(lock);
+        })
+        return result;
     }
-    removeItemInHash(table, id) {
-        return this.redisHash.remove(table, id);
+
+    async removeItemInHash(table, id) {
+        var result;
+        await this.lockRessource().then(lock => {
+            result = this.redisHash.remove(table, id);
+            this.unlockLock(lock);
+        })
+        return result;
     }
-    removeAllHash(table) {
-        return this.redisHash.removeAll(table);
+    async removeAllHash(table) {
+        var result;
+        await this.lockRessource().then(lock => {
+            result = this.redisHash.removeAll(table);
+            this.unlockLock(lock);
+        })
+        return result;
+    }
+
+    getString(id) {
+        this.init();
+        return this.redisString.findOne(id);
+    }
+
+    async setString(id, value) {
+        var result;
+        await this.lockRessource().then(lock => {
+            result = this.redisString.insert(id, JSON.stringify(value));
+            this.unlockLock(lock);
+        })
+        return result;
     }
 }
 

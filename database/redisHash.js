@@ -12,7 +12,7 @@ class RedisHash {
     findOne(table, id){
         return new Promise((resolve, reject) => {
             this.redis.hmget(table, id, function(err, reply){
-                console.log(reply);
+                console.log('findOne in RedisHash', reply);
                 err ? reject(err) : resolve(reply);
             });
         });
