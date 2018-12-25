@@ -8,20 +8,51 @@ const {
 } = require('stellar-base');
 
 module.exports = {
-    createAccount: createAccount
+    signUp: signUp
 };
 
+function signIn(req, res) {
+    var body = req.swagger.params.body;
+    var publicKey = body.value.publicKey;
+    var signature = body.value.signature;
+    
+    if (!StrKey.isValidEd25519PublicKey(publicKey)) {
+        res.json({result: {code: 1, log: 'invalid public key'}});
+        return;
+    }
 
-function createAccount(req, res) {
+}
+function signUp(req, res) {
     const redis = req.app.redis;
     //redis.getOneHash('list1',"a").then(value => {console.log('123213');console.log(value);});;
-    var x = {a: "1"};
     //insertHash
-    redis.getOneHash('list1',"a3").then(value => {
+    var c = {
+        account: '123123',
+        publickey: '123123',
+        react: [
+            {a: 1},
+            {b: 3}
+        ]
+    }
+
+    // redis.insertHash('list1', 'a3', c).then(value => {
+    //     res.json(value);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
+
+    redis.getAllHash('list1').then(value => {
+        // var xx = Object.keys(value).map((key) => {return (value[key])});
+         console.log(value);
         res.json(value);
     }).catch(err => {
         console.log(err);
     });
+    // redis.getOneHash('list1','a2').then(value => {
+    //     res.json(value);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
 
     //console.log(rs);
     // var body = req.swagger.params.body;

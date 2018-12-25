@@ -7,4 +7,3 @@ module.exports = {
     POST: 'post',
     INTERACT: 'interact',
 }
-ơ

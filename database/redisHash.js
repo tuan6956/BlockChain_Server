@@ -6,31 +6,49 @@ class RedisHash {
         this.redis = redis;
         console.log('create redis hash');
     }
-    sayHello(){
-        console.log('123213');
-    }
-    findOne(table, id){
+
+    findOne(table, id) {
         return new Promise((resolve, reject) => {
-            this.redis.hmget(table, id, function(err, reply){
-                console.log('findOne in RedisHash', reply);
+            this.redis.hget(table, id, function (err, reply) {
                 err ? reject(err) : resolve(reply);
             });
         });
     }
-    findAll(table){
-        return this.redis.hgetall(table);
+    findAll(table) {
+        return new Promise((resolve, reject) => {
+            this.redis.hgetall(table, function (err, reply) {
+                err ? reject(err) : resolve(reply ? Object.keys(reply).map((key) => {return JSON.parse(reply[key])}) : reply);
+            });
+        });
     }
-    insert(table, id, value){
-        return this.redis.hmset(table, id, value);
+    insert(table, id, value) {
+        return new Promise((resolve, reject) => {
+            this.redis.hset(table, id, value, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
     }
-    update(table, id, value){
-        return this.redis.hset(table, id, value);
+    update(table, id, value) {
+        return new Promise((resolve, reject) => {
+            this.redis.hset(table, id, value, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
     }
-    remove(table, id){
-        this.redis.hdel(table, id);
+    remove(table, id) {
+        return new Promise((resolve, reject) => {
+            this.redis.hdel(table, id, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
     }
-    removeAll(table){
-        this.redis.del(table);
+    removeAll(table) {
+        return new Promise((resolve, reject) => {
+            this.redis.del(table, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
+
     }
 }
 module.exports = RedisHash;

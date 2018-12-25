@@ -1,12 +1,24 @@
 'use strict';
 
 var configRedis = require('../config/configRedis');
-
+const  {Keypair, StrKey } = require('stellar-base');
+const trans = require('../lib/transaction')
 class Account {
-    constructor() {
-
+    constructor(redis) {
+        this.redis = redis;
     }
     
+    signin(publicKey, signature) {
+        if (!StrKey.isValidEd25519PublicKey(publicKey)) {
+            return {statusCode: -1, message: 'invalid public key'};
+        }
+        if(trans.verify({account: publicKey, signature: signature})) {
+            return {statusCode: -1, message: 'invalid signature'};
+        }
+        const account = redis.
+        
+    }
+
     create(address) {
 
     }

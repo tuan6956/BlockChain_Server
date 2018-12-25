@@ -11,10 +11,18 @@ class RedisString {
         });
     }
     insert(id, value){
-        return this.redis.set(id, value);
+        return new Promise((resolve, reject) => {
+            this.redis.set(id, value, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
     }
     remove(id){
-        return this.redis.del(id);
+        return new Promise((resolve, reject) => {
+            this.redis.del(id, function (err, reply) {
+                err ? reject(err) : resolve(reply);
+            });
+        });
     }
 }
 module.exports = RedisString;

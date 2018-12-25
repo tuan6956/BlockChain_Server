@@ -13,7 +13,7 @@ app.redis = new Redisson();
 app.redis.connect('103.114.107.16');
 
 var block = new Block();
-block.syncBlock(app.redis);
+// block.syncBlock(app.redis);
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }

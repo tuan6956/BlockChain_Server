@@ -3,6 +3,8 @@ var configNetwork = require('../config/network')
 let { RpcClient } = require('tendermint')
 const transaction = require('../lib/transaction')
 const configRedis = require('../config/configRedis')
+const vstruct = require('varstruct');
+const helper = require('../helper')
 const Followings = vstruct([
     { name: 'addresses', type: vstruct.VarArray(vstruct.UInt16BE, vstruct.Buffer(35)) },
 ]);
@@ -46,8 +48,9 @@ class Block {
             });
         }
     }
-    processTx(redis, block, txs) {
+    async processTx(redis, block, txs) {
         var trans = transaction.decode(Buffer.from(txs, 'base64'));
+        var hashTrans = helper.hash(txs);
         var accountKey = trans.account;
         var account = {
             address: '',
@@ -58,7 +61,7 @@ class Block {
             bandwidthTime: 0,
         }
         await redis.getOneHash(configRedis.ACCOUNTS, accountKey).then(value => {
-            account = JSON.parse(value);
+            account = (value);
         });
         
         const diff = account.bandwidthTime
@@ -93,7 +96,7 @@ class Block {
             case 'payment':
                 //get account receiver
                 await redis.getOneHash(configRedis.ACCOUNTS, trans.params.address).then(value => {
-                    receiver = JSON.parse(value);
+                    receiver = (value);
                 });
                 // balance in my account
                 account.balance = account.balance - trans.params.amount;
@@ -112,9 +115,8 @@ class Block {
                 //parse content
                 var content = trans.params.content.toString('utf-8');
                 //insert post and update account in cache
-                await redis.insertHash(configRedis.POST, txs, {account: account.address, content: content});
+                await redis.insertHash(configRedis.POST, hashTrans, {tweetId: hashTrans, account: account.address, content: content, time: moment(block.block.header.time).unix()});
                 await redis.insertHash(configRedis.ACCOUNTS, accountKey, account);
-                
                 break;
             case 'update_account':
                 //type in update account with name = update name and picture = update avatar
@@ -145,7 +147,7 @@ class Block {
                 }
                 break;
             case 'interact':
-                
+
                 break;
             default:
                 break;

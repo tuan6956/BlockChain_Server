@@ -81,7 +81,7 @@ class Redisson {
     async insertList(id, value) {
         var result;
         await this.lockRessource().then(lock => {
-            result = this.redisList.insert(id, JSON.stringify(value));
+            result = this.redisList.insert(id, (value));
             this.unlockLock(lock);
         })
         return result;
@@ -109,15 +109,16 @@ class Redisson {
     async insertHash(table, id, value) {
         var result;
         await this.lockRessource().then(lock => {
-            result = this.redisHash.insert(table, id, JSON.stringify(value));
+            result = this.redisHash.insert(table, id, (value));
             this.unlockLock(lock);
         })
         return result;
     }
+    
     async updateHash(table, id, value) {
         var result;
         await this.lockRessource().then(lock => {
-            result = this.redisHash.update(table, id, JSON.stringify(value));
+            result = this.redisHash.update(table, id,(value));
             this.unlockLock(lock);
         })
         return result;
@@ -148,7 +149,7 @@ class Redisson {
     async setString(id, value) {
         var result;
         await this.lockRessource().then(lock => {
-            result = this.redisString.insert(id, JSON.stringify(value));
+            result = this.redisString.insert(id, (value));
             this.unlockLock(lock);
         })
         return result;
