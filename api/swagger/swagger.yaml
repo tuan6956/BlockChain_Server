@@ -179,7 +179,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
-  /tweet/{tweetId}/interact:
+  /tweet/{tweetId}:
     # binds a127 app logic to a route
     x-swagger-router-controller: tweet
     get:
@@ -203,6 +203,9 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"   
+  /tweet/{tweetId}/interact:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: tweet
     post:
       description: post new interact in this tweet
       operationId: interact
@@ -228,6 +231,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
+
   /payment/{publicKey}:
     # binds a127 app logic to a route
     x-swagger-router-controller: payment
@@ -315,9 +319,9 @@ definitions:
   PostTransaction:
     type: object
     required:
-      - transaction
+      - txs
     properties:
-      transaction:
+      txs:
         type: string
   SignIn:
     type: object
@@ -332,9 +336,9 @@ definitions:
   MessageResponse:
     properties:
       statusCode:
-        type: object
+        type: integer
       message:
-        type: object
+        type: string
       value:
         type: object
   ErrorResponse:

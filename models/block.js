@@ -34,17 +34,20 @@ class Block {
     constructor() {
         this.processTx.bind(this);
     }
+    async init(redis) {
+        await syncBlock();
+        client.subscribe({ query: 'tm.event = \'NewBlock\'' }, (event) => {
+            await syncBlock(redis);
+
+        })
+    }
     async syncBlock(redis) {
         var index = 1;
-        await redis.getString(configRedis.LAST_BLOCK).then(
-            value => {
-                value ? index = parseInt(value) : 1;
-            }
-        ).catch(err => {
+        index = await redis.getString(configRedis.LAST_BLOCK).catch(err => {
             index = 1;
             console.log(err);
         });
-
+        !index ? index = 1 : index;
         //GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7 account của thầy
         let accountTeacher = {
             address: 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7',
@@ -53,8 +56,18 @@ class Block {
             sequence: 0,
             bandwidth: 0,
         }
-        accountRepo.insert(redis, 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7', accountTeacher );
-        let client = RpcClient('wss://zebra.forest.network:443');
+        accountTeacher = await accountRepo.getOne(redis, 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7');
+        if(!accountTeacher) {
+            accountTeacher = {
+                address: 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7',
+                name: '',
+                balance: Number.MAX_SAFE_INTEGER,
+                sequence: 0,
+                bandwidth: 0,
+            }
+            accountRepo.insert(redis, 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7', accountTeacher );
+        }
+        let client = RpcClient('wss://dragonfly.forest.network:443');
 
         var emptyBlock = false;
         
@@ -62,7 +75,6 @@ class Block {
             console.log('index block ', index);
             await redis.setString(configRedis.LAST_BLOCK, index - 1);
             await client.block({ height: index++ }).then(async (block) => {
-                
                 await redis.insertList(configRedis.BLOCKS, JSON.stringify(block))
                 var txs = block.block.data.txs;
                 if (txs) {
@@ -76,16 +88,20 @@ class Block {
                     //     }
                     // });
                 }
+
             }).catch(err => {
                 if (err.code == -32603) {
                     emptyBlock = true;
                 }
                 console.log(err);
             });
+            // if(index > 1000) {
+            //     return;
+            // }
         }
+
     }
     async processTx(redis, block, txs, height) {
-
         try {
             var trans = transaction.decode(Buffer.from(txs, 'base64'));
         } catch (error) {
@@ -95,11 +111,12 @@ class Block {
         var txSize = Buffer.from(txs, 'base64').length;
         var hashTrans = helper.hash(txs);
         var accountKey = trans.account;
-        var account;
+        
 
-        await redis.getOneHash(configRedis.ACCOUNTS, accountKey).then(value => {
-            account = (value);
-        });
+        var account = await redis.getOneHash(configRedis.ACCOUNTS, accountKey).catch(err => {
+            console.log(err);
+            return;
+        })
         if( !account ) {
             console.log('not found account ', height , accountKey);
             return;
@@ -114,7 +131,7 @@ class Block {
         account.bandwidthTime = block.block.header.time;
         //update sequence
         account.sequence = trans.sequence;
-
+        account.txSize = txSize;
 
         var receiver;
 
@@ -143,9 +160,10 @@ class Block {
                 // await redis.getOneHash(configRedis.ACCOUNTS, trans.params.address).then(value => {
                 //     receiver = (value);
                 // });
-                await accountRepo.getOne(redis, trans.params.address).then(value => {
-                    receiver = value;
-                });
+                receiver = await accountRepo.getOne(redis, trans.params.address).catch(err => {
+                    console.log(err);
+                    return;
+                })
                 if(!receiver) {
                     console.log('receiver ' + receiver + " not found ");
                     break;

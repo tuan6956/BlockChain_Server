@@ -13,45 +13,40 @@ const helper = require('../helper')
 const Transaction = require('./transaction')
 const configBanwidth = require('../config/configBandwidth')
 
-class Tweet {
+class Payment {
     constructor(redis) {
         this.redis = redis;
     }
-    getTweet(publicKey) {
+
+    payment(transaction) {
+        return Transaction.commit(transaction);
+    }
+
+    paymentHistory(publicKey) {
         return new Promise((resolve, reject) => {
             if (!StrKey.isValidEd25519PublicKey(publicKey)) {
                 reject({ statusCode: -1, message: 'invalid public key'});
             }
-            tweetRepo.getAllByPublicKey(this.redis, publicKey).then(tweet => {
-                resolve( { statusCode: 1, message: '', value: {tweets: tweet} });
+            paymentRepo.getAllByPublicKey(this.redis, publicKey).then(payment => {
+                resolve( { statusCode: 1, message: '', value: {payments: payment} });
             }).catch(err => {
                 reject({ statusCode: -1, message: err });
             });
         });
-            
-        return 
     }
 
-    postTweet(transaction) {
-        return Transaction.commit(transaction);
-    }
-
-    interact(transaction) {
-        return Transaction.commit(transaction);
-    }
-
-    getAll() {
+    paymentHistory() {
         return new Promise((resolve, reject) => {
-            tweetRepo.getAll(this.redis, publicKey).then(tweet => {
-                resolve( { statusCode: 1, message: '', value: {tweets: tweet} });
+            if (!StrKey.isValidEd25519PublicKey(publicKey)) {
+                reject({ statusCode: -1, message: 'invalid public key'});
+            }
+            paymentRepo.getAll(this.redis).then(payment => {
+                resolve( { statusCode: 1, message: '', value: {payments: payment} });
             }).catch(err => {
                 reject({ statusCode: -1, message: err });
             });
         });
-            
-        return 
     }
-
 }
 
-module.exports = Tweet;
+module.exports = Payment;

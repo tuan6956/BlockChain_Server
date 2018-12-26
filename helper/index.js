@@ -28,8 +28,10 @@ async function checkTransaction(redis, transaction) {
     var buf = Buffer.from(transaction, 'hex');
     var txSize = buf.length;
     var tx = trans.decode(buf);
-    var account;
-    await accountRepo.getOne(redis, tx.account).then(value => account = value);
+    var account = await accountRepo.getOne(redis, tx.account).catch(err => {
+      console.log(err);
+      return { statusCode: -1, message: err.message };
+    });
     if (!account) {
       return { statusCode: -1, message: 'account does not exist' };
     }
@@ -64,9 +66,11 @@ async function checkTransaction(redis, transaction) {
     }
 
     // check operation
-    var foundAccount;
     if (tx.params.address) {
-      await accountRepo.getOne(redis, tx.params.address).then(value => foundAccount = value);
+      var foundAccount = await accountRepo.getOne(redis, tx.params.address).catch(err => {
+        console.log(err);
+        return { statusCode: -1, message: err.message };
+      });
     }
     if (operation === 'create_account') {
       const { address } = tx.params;
@@ -94,8 +98,10 @@ async function checkTransaction(redis, transaction) {
     } else if (operation === 'interact') {
       const { object, content } = tx.params;
       // Check if object exists
-      var tweet;
-      await tweetRepo.getOne(redis, object).then(value => tweet = value);
+      let tweet = await tweetRepo.getOne(redis, object).catch(err => {
+        console.log(err);
+        return { statusCode: -1, message: err.message };
+      });
 
       if (!tweet) {
         return { statusCode: -1, message: ('tweet does not exist') };

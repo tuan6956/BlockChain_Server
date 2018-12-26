@@ -4,6 +4,10 @@ var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
 var Redisson = require('./database/redis')
 var Block = require('./models/block')
+var accountModel = require('./models/account');
+var paymentModel = require('./models/payment');
+var tweetModel = require('./models/tweet');
+
 module.exports = app; // for testing
 
 var config = {
@@ -13,6 +17,10 @@ app.redis = new Redisson();
 app.redis.connect('103.114.107.16');
 
 var block = new Block();
+app.account = new accountModel(app.redis);
+app.payment = new paymentModel(app.redis);
+app.tweet = new tweetModel(app.redis);
+
 block.syncBlock(app.redis);
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {

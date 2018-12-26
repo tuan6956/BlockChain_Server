@@ -35,9 +35,17 @@ const encode = () => {
     hashTx = trans.encode(dataCreateAccount).toString('hex');
     console.log(hashTx);
 }
+function x(){
+    return new Promise((resolve, reject) => {
+       reject('123');
+    });
+}
 async function abc(){
-    await ss();
-    console.log('789');
+    var i = 0;
+    while(i++ < 10) {
+        await console.log(i);
+    }
+    console.log(11);
 }
 async function ss(){
     await console.log('123');
