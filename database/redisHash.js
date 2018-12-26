@@ -21,6 +21,7 @@ class RedisHash {
             });
         });
     }
+
     insert(table, id, value) {
         return new Promise((resolve, reject) => {
             this.redis.hset(table, id, value, function (err, reply) {

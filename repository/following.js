@@ -11,6 +11,7 @@ const getOne = (redis, publicKey) => {
         );
     });
 }
+
 const getAll = (redis) => {
     return new Promise((resolve, reject) => {
         redis.getAllHash(tableFollowings).then(value => {
@@ -20,6 +21,7 @@ const getAll = (redis) => {
         );
     });
 }
+
 const insert = (redis, publicKey, value) => {
     return new Promise((resolve, reject) => {
         getOne(redis, publicKey).then(follow => {
@@ -36,6 +38,7 @@ const insert = (redis, publicKey, value) => {
         }).catch(err => reject(err))
     });
 }
+
 const remove = (redis, publicKey, value) => {
     return new Promise((resolve, reject) => {
         getOne(redis, publicKey).then(follow => {

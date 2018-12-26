@@ -6,4 +6,6 @@ module.exports = {
     FOLLOWINGS: 'followings',
     POST: 'post',
     INTERACT: 'interact',
+    PAYMENT: 'payment',
+    
 }

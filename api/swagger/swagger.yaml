@@ -101,6 +101,49 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
+  /account/{publicKey}/follow:
+    x-swagger-router-controller: account
+    get:
+      description: get follow in account
+      operationId: getFollow
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+    post:
+      description: follow orther account require transaction to commit
+      operationId: follow
+      parameters:
+        - name: publicKey
+          in: path
+          description: publicKey
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
   /tweet:
     x-swagger-router-controller: tweet
     get:
@@ -142,7 +185,7 @@ paths:
     get:
       description: get all interact in this tweet
       # used as the method name of the controller
-      operationId: get
+      operationId: getOne
       parameters:
         - name: tweetId
           in: path

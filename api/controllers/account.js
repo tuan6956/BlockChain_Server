@@ -6,7 +6,7 @@ var util = require('util');
 const {
     Keypair,StrKey
 } = require('stellar-base');
-
+const helper = require('../../helper')
 module.exports = {
     signUp: signUp
 };
@@ -23,7 +23,12 @@ function signIn(req, res) {
 
 }
 function signUp(req, res) {
-    const redis = req.app.redis;
+
+    // helper.checkTransaction(null, '0130c0888a5fdc63d5a6f60691182d181d68a3727889abab19f197d690e2eeade33da5c200000000000000100002002b305b98372b6f1262eda14f97dac825e1b531df7bfcfa54a62bccf500097f64ad3a188000000000000000019d70b5d3fbeedb859116e7f68e8158f60c0e10ed4701486e112e9c592531f97023f4407adcb9caca29b912d3be130445a48c36bcdd45442d8c3ed738f6ca7204', null)
+    // .then(value => res.json({value: value}))
+    // .catch(err => res.json({message: '123'}));
+     const redis = req.app.redis;
+
     //redis.getOneHash('list1',"a").then(value => {console.log('123213');console.log(value);});;
     //insertHash
     var c = {
@@ -33,18 +38,27 @@ function signUp(req, res) {
             {a: 1},
             {b: 3}
         ]
-    }
+    }    
+    // redis.getList('list_1').then(value => {
+    //     console.log(value);
+    //     res.json({value: {payments: value}});
+    // })
+    // redis.insertList("list_1", c);
+    // redis.insertList("list_1", c);
+    // redis.insertList("list_1", c);
+    // res.json('OK');    
+    
 
-    // redis.insertHash('list1', 'a3', c).then(value => {
-    //     res.json(value);
-    // }).catch(err => {
-    //     console.log(err);
-    // });
+    // // redis.insertHash('list1', 'a3', c).then(value => {
+    // //     res.json(value);
+    // // }).catch(err => {
+    // //     console.log(err);
+    // // });
 
     redis.getAllHash('list1').then(value => {
         // var xx = Object.keys(value).map((key) => {return (value[key])});
          console.log(value);
-        res.json(value);
+        res.json({value: {value: value}});
     }).catch(err => {
         console.log(err);
     });
@@ -84,4 +98,19 @@ function signUp(req, res) {
     //     .catch(function (error) {
     //         res.json(error);
     //     }); 
+}
+function profile(req, res) {
+
+}
+function update(req, res) {
+    
+}
+function update(req, res) {
+    
+}
+function getFollow(req, res) {
+    
+}
+function follow(req, res) {
+    
 }

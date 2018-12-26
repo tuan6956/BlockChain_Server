@@ -31,4 +31,4 @@ const insert = (redis, tweetId, publicKey, type, value) => {
 }
 
 
-module.exports = { getOne, getAll, insert, update };
+module.exports = { insert };

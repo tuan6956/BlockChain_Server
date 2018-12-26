@@ -6,7 +6,7 @@ class RedisList {
     findOne(id){
         return new Promise((resolve, reject) => {
             this.redis.lrange(id, 0, -1, function (err, reply) {
-                err ? reject(err) : resolve(reply);
+                err ? reject(err) : resolve(Object.keys(reply).map((key) => {return JSON.parse(reply[key])}));
             });
         });
     }
