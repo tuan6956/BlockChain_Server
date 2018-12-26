@@ -5,6 +5,10 @@ const configBanwidth = require('./config/configBandwidth')
 const helper = require('./helper')
 const publicKey = 'GDAIRCS73RR5LJXWA2IRQLIYDVUKG4TYRGV2WGPRS7LJBYXOVXRT3JOC';
 const privateKey = 'SC6EN5ILS7746C2UYEZCY4JPA2VKD5WG75ZJXM4LUSIRHMSFW3FA2ONC';
+const PlainTextContent = vstruct([
+  { name: 'type', type: vstruct.UInt8 },
+  { name: 'text', type: vstruct.VarString(vstruct.UInt16BE) },
+]);
 
 const encode = () => {
     const dataPayment = {
@@ -28,6 +32,18 @@ const encode = () => {
         operation: 'create_account',
         params: {
             address: publicKeyCre,
+        },
+    }
+
+    const postTweet = {
+        version: 1,
+        account: publicKey,
+        sequence: 13,
+        memo: Buffer.alloc(0),
+        operation: 'create_account',
+        params: {
+            keys: [],
+            content: PlainTextContent.encode({}),
         },
     }
     console.log(publicKeyCre)

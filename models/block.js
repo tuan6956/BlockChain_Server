@@ -14,6 +14,7 @@ const paymentRepo = require('../repository/payment');
 const tweetRepo = require('../repository/tweet');
 const configBanwidth = require('../config/configBandwidth')
 const moment = require('moment');
+const base32 = require('base32.js');
 
 const Followings = vstruct([
     { name: 'addresses', type: vstruct.VarArray(vstruct.UInt16BE, vstruct.Buffer(35)) },
@@ -33,12 +34,13 @@ const ReactContent = vstruct([
 class Block {
     constructor() {
         this.processTx.bind(this);
+        this.syncBlock.bind(this);
     }
     async init(redis) {
-        await syncBlock();
-        client.subscribe({ query: 'tm.event = \'NewBlock\'' }, (event) => {
-            await syncBlock(redis);
-
+        console.log('123123123');
+        await this.syncBlock(redis);
+        client.subscribe({ query: 'tm.event = \'NewBlock\'' }, async (event) => {
+            await this.syncBlock(redis);
         })
     }
     async syncBlock(redis) {

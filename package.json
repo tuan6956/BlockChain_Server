@@ -9,6 +9,7 @@
   "main": "app.js",
   "dependencies": {
     "axios": "^0.18.0",
+    "base32.js": "^0.1.0",
     "crypto": "^1.0.1",
     "decimal": "0.0.2",
     "express": "^4.12.3",

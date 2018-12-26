@@ -21,7 +21,7 @@ app.account = new accountModel(app.redis);
 app.payment = new paymentModel(app.redis);
 app.tweet = new tweetModel(app.redis);
 
-block.syncBlock(app.redis);
+block.init(app.redis);
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
