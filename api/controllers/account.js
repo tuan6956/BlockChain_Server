@@ -25,7 +25,7 @@ function signIn(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
@@ -37,7 +37,7 @@ function signUp(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 
@@ -127,7 +127,7 @@ function profile(req, res) {
         res.json(value);
     }).catch(err => {
         console.log(err);
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
@@ -139,7 +139,7 @@ function update(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
@@ -150,7 +150,7 @@ function getFollow(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     }) 
 }
@@ -162,7 +162,7 @@ function follow(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }

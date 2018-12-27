@@ -21,7 +21,7 @@ function getAll(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
@@ -32,7 +32,7 @@ function post(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
@@ -42,7 +42,7 @@ function getOne(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     }) 
 }
@@ -53,7 +53,7 @@ function getByPublicKey(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     }) 
 }
@@ -64,7 +64,7 @@ function interact(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }

@@ -18,7 +18,7 @@ function commit(req, res) {
         res.status(200);
         res.json(value);
     }).catch(err => {
-        res.status(400);
+        res.status(200);
         res.json(err);
     })
 }
