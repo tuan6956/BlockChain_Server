@@ -14,7 +14,7 @@ module.exports = {
 function commit(req, res) {
     var body = req.swagger.params.body;
     var txs = body.value.txs;
-    req.app.transaction.commit('0x' + txs).then(value => {
+    req.app.transaction.commit(txs).then(value => {
         res.status(200);
         res.json(value);
     }).catch(err => {

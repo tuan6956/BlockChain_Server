@@ -2,7 +2,7 @@ const moment = require('moment');
 const trans = require('../lib/transaction')
 const accountRepo = require('../repository/account')
 const tweetRepo = require('../repository/tweet')
-const Decimal = require('decimal');
+const Decimal = require('decimal.js');
 const axios = require('axios')
 const network = require('../config/network')
 const querystring = require('querystring');
@@ -27,6 +27,7 @@ async function checkTransaction(redis, transaction) {
   try {
     var buf = Buffer.from(transaction, 'hex');
     var txSize = buf.length;
+    
     var tx = trans.decode(buf);
     var account = await accountRepo.getOne(redis, tx.account).catch(err => {
       console.log(err);
@@ -35,12 +36,13 @@ async function checkTransaction(redis, transaction) {
     if (!account) {
       return { statusCode: -1, message: 'account does not exist' };
     }
+    
     //check sequense
     const nextSequence = new Decimal(account.sequence).add(1);
+    
     if (!nextSequence.equals(tx.sequence)) {
       return { statusCode: -1, message: 'Sequence mismatch' };
     }
-
     //check meno length
     if (tx.memo.length > 32) {
       return { statusCode: -1, message: 'Memo has more than 32 bytes.' };
@@ -53,7 +55,7 @@ async function checkTransaction(redis, transaction) {
       : configBanwidth.BANDWIDTH_PERIOD;
     const bandwidthLimit = account.balance / configBanwidth.MAX_CELLULOSE * configBanwidth.NETWORK_BANDWIDTH;
     // 24 hours window max 65kB
-    var accountBandwidth = Math.ceil(Math.max(0, (BANDWIDTH_PERIOD - diff) / BANDWIDTH_PERIOD) * account.bandwidth + txSize);
+    var accountBandwidth = Math.ceil(Math.max(0, (configBanwidth.BANDWIDTH_PERIOD - diff) / configBanwidth.BANDWIDTH_PERIOD) * account.bandwidth + txSize);
     if (accountBandwidth > bandwidthLimit) {
       return { statusCode: -1, message: 'Bandwidth limit exceeded' };
     }
@@ -72,14 +74,15 @@ async function checkTransaction(redis, transaction) {
         return { statusCode: -1, message: err.message };
       });
     }
+    let operation = tx.operation;
     if (operation === 'create_account') {
       const { address } = tx.params;
-      if (foundAccount) {
+      if (!foundAccount) {
         return { statusCode: -1, message: 'Account address register existed' };
       }
     } else if (operation === 'payment') {
       const { address, amount } = tx.params;
-      if (foundAccount) {
+      if (!foundAccount) {
         return { statusCode: -1, message: 'Destination address does not exist' };
       }
       if (address === tx.account) {
@@ -117,16 +120,27 @@ async function checkTransaction(redis, transaction) {
 
 function commitTransaction(transaction) {
   return new Promise((resolve, reject) => {
-    axios.post(network.API_URL + 'broadcast_tx_commit', querystring.stringify({ tx: transaction })).then(response => {
+    axios.post(network.API_URL + 'broadcast_tx_commit', querystring.stringify({ tx: '0x'+ transaction })).then(response => {
       var data = response.data;
-      var error = data.error;
-      var check_tx_log = data.result.check_tx.log;
-      if(error) {
-        reject({statusCode: -1, message: error.data});
-      } 
-      if(check_tx_log) {
-        reject({statusCode: -1, message: check_tx_log});
-      } 
+      console.log(data);
+      try {
+        var check_tx_log = data.result.check_tx.log;
+        if(check_tx_log) {
+          reject({statusCode: -1, message: check_tx_log});
+        } 
+      } catch (error) {
+        
+      }
+      try {
+        var error = data.error;
+        if(error) {
+          reject({statusCode: -1, message: error.data});
+        } 
+      } catch (error) {
+        
+      }
+
+
       resolve({statusCode: 1, value: data.hash});
     }).catch(err => {
       reject({statusCode: -1, message: err.message});

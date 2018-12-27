@@ -7,6 +7,8 @@ var Block = require('./models/block')
 var accountModel = require('./models/account');
 var paymentModel = require('./models/payment');
 var tweetModel = require('./models/tweet');
+var transactionModel = require('./models/transaction');
+
 const YAML = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
@@ -25,6 +27,7 @@ var block = new Block(app.redis);
 app.account = new accountModel(app.redis);
 app.payment = new paymentModel(app.redis);
 app.tweet = new tweetModel(app.redis);
+app.transaction = new transactionModel(app.redis);
 
 //block.init();
 
