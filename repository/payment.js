@@ -16,7 +16,7 @@ const getAll = (redis) => {
 const getAllByPublicKey  = (redis, publicKey) => {
     return new Promise((resolve, reject) => {
         redis.getList(tablePayment).then(value => {
-            resolve(value.filter(payment => {payment.sender === publicKey || payment.receiver === publicKey}));
+            resolve(value.filter(payment => {return payment.sender === publicKey || payment.receiver === publicKey || payment.receiver.address === publicKey}));
         }).catch(err => 
             reject(err)
         );

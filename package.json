@@ -22,8 +22,10 @@
     "sequelize": "^4.41.2",
     "stellar-base": "^0.9.0",
     "swagger-express-mw": "^0.1.0",
+    "swagger-ui-express": "^4.0.2",
     "tendermint": "^3.4.0",
-    "varstruct": "^6.1.2"
+    "varstruct": "^6.1.2",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "should": "^7.1.0",

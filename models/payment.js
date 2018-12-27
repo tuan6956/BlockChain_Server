@@ -22,11 +22,12 @@ class Payment {
         return Transaction.commit(transaction);
     }
 
-    paymentHistory(publicKey) {
+    paymentHistoryByPublicKey(publicKey) {
         return new Promise((resolve, reject) => {
             if (!StrKey.isValidEd25519PublicKey(publicKey)) {
                 reject({ statusCode: -1, message: 'invalid public key'});
             }
+        
             paymentRepo.getAllByPublicKey(this.redis, publicKey).then(payment => {
                 resolve( { statusCode: 1, message: '', value: {payments: payment} });
             }).catch(err => {
@@ -37,9 +38,6 @@ class Payment {
 
     paymentHistory() {
         return new Promise((resolve, reject) => {
-            if (!StrKey.isValidEd25519PublicKey(publicKey)) {
-                reject({ statusCode: -1, message: 'invalid public key'});
-            }
             paymentRepo.getAll(this.redis).then(payment => {
                 resolve( { statusCode: 1, message: '', value: {payments: payment} });
             }).catch(err => {

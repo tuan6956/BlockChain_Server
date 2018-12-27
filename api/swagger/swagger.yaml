@@ -3,7 +3,9 @@ info:
   version: "0.0.1"
   title: Hello World App
 # during dev, should point to your local machine
-host: localhost:10010
+#host: localhost:8008
+host: 103.114.107.16:8008
+
 # basePath prefixes all resource paths 
 basePath: /api
 # 
@@ -78,29 +80,6 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
-    post:
-      description: Update account require transaction to commit
-      operationId: update
-      parameters:
-        - name: publicKey
-          in: path
-          description: publicKey
-          required: true
-          type: string
-        - name: body
-          in: body
-          description: parameter with transaction be created by client
-          schema:
-            $ref: '#/definitions/PostTransaction'
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/MessageResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"        
   /account/{publicKey}/follow:
     x-swagger-router-controller: account
     get:
@@ -121,29 +100,6 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
-    post:
-      description: follow orther account require transaction to commit
-      operationId: follow
-      parameters:
-        - name: publicKey
-          in: path
-          description: publicKey
-          required: true
-          type: string
-        - name: body
-          in: body
-          description: parameter with transaction be created by client
-          schema:
-            $ref: '#/definitions/PostTransaction'
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/MessageResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"        
   /tweet:
     x-swagger-router-controller: tweet
     get:
@@ -154,27 +110,6 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/MessageResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"        
-    post:
-      description: Post new tweet
-      # used as the method name of the controller
-      operationId: post
-      parameters:
-        - name: body
-          in: body
-          description: parameter with transaction be created by client
-          schema:
-            $ref: '#/definitions/PostTransaction'
-      responses:
-        "200":
-          description: Success
-          schema:
-            # a pointer to a definition
-            $ref: "#/definitions/MessageResponse"
-        # responses may fall through to errors
         default:
           description: Error
           schema:
@@ -203,23 +138,19 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"   
-  /tweet/{tweetId}/interact:
+  /tweet/my/{publicKey}:
     # binds a127 app logic to a route
     x-swagger-router-controller: tweet
-    post:
-      description: post new interact in this tweet
-      operationId: interact
+    get:
+      description: get all interact in this tweet
+      # used as the method name of the controller
+      operationId: getByPublicKey
       parameters:
-        - name: tweetId
+        - name: publicKey
           in: path
           description: id of topic
           required: true
           type: string
-        - name: body
-          in: body
-          description: parameter with transaction be created by client
-          schema:
-            $ref: '#/definitions/PostTransaction'
       responses:
         "200":
           description: Success
@@ -230,8 +161,7 @@ paths:
         default:
           description: Error
           schema:
-            $ref: "#/definitions/ErrorResponse"        
-
+            $ref: "#/definitions/ErrorResponse"   
   /payment/{publicKey}:
     # binds a127 app logic to a route
     x-swagger-router-controller: payment
@@ -245,11 +175,6 @@ paths:
           description: publicKey
           required: true
           type: string
-        - name: body
-          in: body
-          description: parameter with public key
-          schema:
-            $ref: '#/definitions/CreateAccount'
       responses:
         "200":
           description: Success
@@ -261,21 +186,13 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"        
-    post:
-      description: send payment to orther account
+  /payment/history:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: payment
+    get:
+      description: Get all history payment
       # used as the method name of the controller
-      operationId: send
-      parameters:
-        - name: publicKey
-          in: path
-          description: publicKey
-          required: true
-          type: string
-        - name: body
-          in: body
-          description: parameter with transaction be created by client
-          schema:
-            $ref: '#/definitions/PostTransaction'
+      operationId: history
       responses:
         "200":
           description: Success
@@ -286,14 +203,19 @@ paths:
         default:
           description: Error
           schema:
-            $ref: "#/definitions/ErrorResponse"           
-  /payment/history:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: payment
-    get:
-      description: Get all history payment
+            $ref: "#/definitions/ErrorResponse"        
+  /transaction:
+    x-swagger-router-controller: transaction
+    post:
+      description: commit transaction
       # used as the method name of the controller
-      operationId: history
+      operationId: commit
+      parameters:
+        - name: body
+          in: body
+          description: parameter with transaction be created by client
+          schema:
+            $ref: '#/definitions/PostTransaction'
       responses:
         "200":
           description: Success

@@ -17,11 +17,21 @@ class Tweet {
     constructor(redis) {
         this.redis = redis;
     }
-    getTweet(publicKey) {
+
+    getTweet(tweetId) {
         return new Promise((resolve, reject) => {
-            if (!StrKey.isValidEd25519PublicKey(publicKey)) {
-                reject({ statusCode: -1, message: 'invalid public key'});
-            }
+            tweetRepo.getOne(this.redis, tweetId).then(tweet => {
+                resolve( { statusCode: 1, message: '', value: tweet });
+            }).catch(err => {
+                reject({ statusCode: -1, message: err });
+            });
+        });
+            
+        return 
+    }
+
+    getTweetByPublicKey(publicKey) {
+        return new Promise((resolve, reject) => {
             tweetRepo.getAllByPublicKey(this.redis, publicKey).then(tweet => {
                 resolve( { statusCode: 1, message: '', value: {tweets: tweet} });
             }).catch(err => {
@@ -42,7 +52,7 @@ class Tweet {
 
     getAll() {
         return new Promise((resolve, reject) => {
-            tweetRepo.getAll(this.redis, publicKey).then(tweet => {
+            tweetRepo.getAll(this.redis).then(tweet => {
                 resolve( { statusCode: 1, message: '', value: {tweets: tweet} });
             }).catch(err => {
                 reject({ statusCode: -1, message: err });

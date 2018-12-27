@@ -8,6 +8,11 @@ const {
 } = require('stellar-base');
 
 module.exports = {
+    getAll,
+    post,
+    getOne,
+    interact,
+    getByPublicKey
     //signUp: signUp
 };
 
@@ -32,8 +37,19 @@ function post(req, res) {
     })
 }
 function getOne(req, res) {
+    let tweetId = req.swagger.params.tweetId.value;
+    req.app.tweet.getTweet(tweetId).then(value => {
+        res.status(200);
+        res.json(value);
+    }).catch(err => {
+        res.status(400);
+        res.json(err);
+    }) 
+}
+function getByPublicKey(req, res) {
+    
     let publicKey = req.swagger.params.publicKey.value;
-    req.app.account.getTweet(publicKey).then(value => {
+    req.app.tweet.getTweetByPublicKey(publicKey).then(value => {
         res.status(200);
         res.json(value);
     }).catch(err => {

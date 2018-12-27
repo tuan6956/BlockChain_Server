@@ -32,24 +32,27 @@ const ReactContent = vstruct([
     { name: 'reaction', type: vstruct.UInt8 },
 ]);
 class Block {
-    constructor() {
+    constructor(redis) {
+        this.redis = redis
         this.processTx.bind(this);
         this.syncBlock.bind(this);
     }
-    async init(redis) {
-        console.log('123123123');
-        await this.syncBlock(redis);
+    async init() {
+        await this.syncBlock();
+        let client = RpcClient('wss://dragonfly.forest.network:443');
         client.subscribe({ query: 'tm.event = \'NewBlock\'' }, async (event) => {
-            await this.syncBlock(redis);
+            await this.syncBlock();
         })
     }
-    async syncBlock(redis) {
+    async syncBlock() {
+        var redis = this.redis;
         var index = 1;
         index = await redis.getString(configRedis.LAST_BLOCK).catch(err => {
             index = 1;
+            
             console.log(err);
         });
-        !index ? index = 1 : index;
+        !index ? index = 1 : index = index + 1;
         //GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7 account của thầy
         let accountTeacher = {
             address: 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7',
@@ -75,9 +78,9 @@ class Block {
         
         while (!emptyBlock) {
             console.log('index block ', index);
-            await redis.setString(configRedis.LAST_BLOCK, index - 1);
             await client.block({ height: index++ }).then(async (block) => {
-                await redis.insertList(configRedis.BLOCKS, JSON.stringify(block))
+                // console.log(block);
+                //await redis.insertList(configRedis.BLOCKS, JSON.stringify(block))
                 var txs = block.block.data.txs;
                 if (txs) {
                     for(let i = 0; i < txs.length; i++) {
@@ -90,7 +93,7 @@ class Block {
                     //     }
                     // });
                 }
-
+                await redis.setString(configRedis.LAST_BLOCK, index - 1);
             }).catch(err => {
                 if (err.code == -32603) {
                     emptyBlock = true;
@@ -178,7 +181,7 @@ class Block {
 
                 //update sender and receiver in cache
                 await paymentRepo.insert(redis, {
-                    receiver: receiver,
+                    receiver: receiver.address,
                     sender: accountKey,
                     amount: trans.params.amount,
                     time: block.block.header.time,
@@ -235,6 +238,7 @@ class Block {
                         let listFollow = Followings.decode(trans.params.value).addresses.map((snapshot) => {
                             return base32.encode(snapshot);
                         });
+                        console.log(listFollow);
                         await followingRepo.insert(redis, accountKey, listFollow);
                         //await redis.insertHash(configRedis.ACCOUNTS, accountKey, account);
                     default:

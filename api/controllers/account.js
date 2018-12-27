@@ -11,6 +11,10 @@ module.exports = {
     signIn,
     signUp,
     profile,
+    getFollow,
+    update,
+    follow,
+
 };
 
 function signIn(req, res) {

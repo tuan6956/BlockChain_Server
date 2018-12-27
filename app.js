@@ -7,6 +7,11 @@ var Block = require('./models/block')
 var accountModel = require('./models/account');
 var paymentModel = require('./models/payment');
 var tweetModel = require('./models/tweet');
+const YAML = require('yamljs');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = YAML.load('./api/swagger/swagger.yaml');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 module.exports = app; // for testing
 
@@ -16,12 +21,12 @@ var config = {
 app.redis = new Redisson();
 app.redis.connect('103.114.107.16');
 
-var block = new Block();
+var block = new Block(app.redis);
 app.account = new accountModel(app.redis);
 app.payment = new paymentModel(app.redis);
 app.tweet = new tweetModel(app.redis);
 
-block.init(app.redis);
+//block.init();
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
@@ -29,7 +34,7 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   // install middleware
   swaggerExpress.register(app);
 
-  var port = process.env.PORT || 10010;
+  var port = process.env.PORT || 8008;
   app.listen(port);
 
   if (swaggerExpress.runner.swagger.paths['/hello']) {

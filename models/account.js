@@ -23,9 +23,15 @@ class Account {
             if (!StrKey.isValidEd25519PublicKey(publicKey)) {
                 reject({ statusCode: -1, message: 'invalid public key'});
             }
-            if (trans.verify({ account: publicKey, signature: signature })) {
-                reject({ statusCode: -1, message: 'invalid signature'});
+            console.log(publicKey);
+            console.log(signature);
+            const txVer = trans.verifyKeyAndSignature(publicKey, signature);
+            console.log(txVer);
+            if (!txVer) {
+                reject({ statusCode: -1, message: 'invalid publicKey or Signature'});
             }
+            console.log('42555')
+            
             accountRepo.getOne(this.redis, publicKey).then(account => {
                 if (!account) {
                     reject({ statusCode: -1, message: 'account not register'});

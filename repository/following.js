@@ -6,9 +6,9 @@ const getOne = (redis, publicKey) => {
     return new Promise((resolve, reject) => {
         redis.getOneHash(tableFollowings, publicKey).then(value => {
             resolve(value);
-        }).catch(err => 
+        }).catch(err =>
             reject(err)
-        );
+            );
     });
 }
 
@@ -16,33 +16,26 @@ const getAll = (redis) => {
     return new Promise((resolve, reject) => {
         redis.getAllHash(tableFollowings).then(value => {
             resolve(value);
-        }).catch(err => 
+        }).catch(err =>
             reject(err)
-        );
+            );
     });
 }
 
 const insert = (redis, publicKey, value) => {
     return new Promise((resolve, reject) => {
-        getOne(redis, publicKey).then(follow => {
-            if(!follow) {
-                reject("follow undefined");
-            } else {
-                var listFollow = (follow).push(value);
-                redis.insertHash(tableFollowings, publicKey, listFollow).then(value => {
-                    resolve(value);
-                }).catch(err => 
-                    reject(err)
-                );
-            }
-        }).catch(err => reject(err))
+        redis.insertHash(tableFollowings, publicKey, value).then(value => {
+            resolve(value);
+        }).catch(err =>
+            reject(err)
+        );
     });
 }
 
 const remove = (redis, publicKey, value) => {
     return new Promise((resolve, reject) => {
         getOne(redis, publicKey).then(follow => {
-            if(!follow) {
+            if (!follow) {
                 reject("follow undefined");
             } else {
                 var listFollow = (follow);
@@ -52,9 +45,9 @@ const remove = (redis, publicKey, value) => {
                 }
                 redis.updateHash(tableFollowings, publicKey, listFollow).then(value => {
                     resolve(value);
-                }).catch(err => 
+                }).catch(err =>
                     reject(err)
-                );
+                    );
             }
         }).catch(err => reject(err))
     });

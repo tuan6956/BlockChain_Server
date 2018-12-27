@@ -8,23 +8,14 @@ const {
 } = require('stellar-base');
 
 module.exports = {
+    balance,
+    history,
     //signUp: signUp
 };
 
 function balance(req, res) {
     let publicKey = req.swagger.params.publicKey.value;
-    req.app.payment.paymentHistory(publicKey).then(value => {
-        res.status(200);
-        res.json(value);
-    }).catch(err => {
-        res.status(400);
-        res.json(err);
-    })
-}
-function send(req, res) {
-    var body = req.swagger.params.body;
-    var txs = body.value.txs;
-    req.app.account.updateProfile(txs).then(value => {
+    req.app.payment.paymentHistoryByPublicKey(publicKey).then(value => {
         res.status(200);
         res.json(value);
     }).catch(err => {

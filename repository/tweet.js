@@ -13,7 +13,9 @@ const getOne = (redis, tweetId) => {
 }
 
 const getAll = (redis) => {
+    console.log('123123');
     return new Promise((resolve, reject) => {
+        
         redis.getAllHash(tableTweet).then(value => {
             resolve(value);
         }).catch(err => 
@@ -22,8 +24,10 @@ const getAll = (redis) => {
     });
 }
 const getAllByPublicKey  = (redis, publicKey) => {
+    console.log('publicKey', publicKey);
     return new Promise((resolve, reject) => {
         redis.getAllHash(tableTweet).then(value => {
+            console.log('getAllByPublicKey', value)
             resolve(value.filter(tweet => tweet.account === publicKey));
         }).catch(err => 
             reject(err)
