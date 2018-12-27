@@ -23,34 +23,34 @@ class Account {
             if (!StrKey.isValidEd25519PublicKey(publicKey)) {
                 reject({ statusCode: -1, message: 'invalid public key'});
             }
-            console.log(publicKey);
-            console.log(signature);
             const txVer = trans.verifyKeyAndSignature(publicKey, signature);
-            console.log(txVer);
             if (!txVer) {
                 reject({ statusCode: -1, message: 'invalid publicKey or Signature'});
             }
-            console.log('42555')
             
             accountRepo.getOne(this.redis, publicKey).then(account => {
                 if (!account) {
                     reject({ statusCode: -1, message: 'account not register'});
                 }
+                const thisTime = new Date().getTime();
+                
                 const bandwidthLimit = account.balance / configBanwidth.MAX_CELLULOSE * configBanwidth.NETWORK_BANDWIDTH;
                 const diff = account.bandwidthTime
-                ? moment(block.block.header.time).unix() - moment(account.bandwidthTime).unix()
+                ? moment(thisTime).unix() - moment(account.bandwidthTime).unix()
                 : configBanwidth.BANDWIDTH_PERIOD;
                 // 24 hours window max 65kB
                 account.bandwidth = Math.ceil(Math.max(0, (configBanwidth.BANDWIDTH_PERIOD - diff) / configBanwidth.BANDWIDTH_PERIOD) * account.bandwidth + account.txSize);
                 account.bandwidthLimit = bandwidthLimit
                 account.energy = bandwidthLimit - account.bandwidth;
-
+                console.log(account);
+                
                 const follow = followRepo.getOne(this.redis, publicKey);
                 const avatar = avatarRepo.getOne(this.redis, publicKey);
+                
                 Promise.all([follow, avatar]).then(([follow, avatar]) => {
                     account.followings = follow;
                     account.avatar = avatar;
-                    resolve( { statusCode: 1, message: '', value: account });
+                    resolve( { statusCode: 1, message: 'ok', value: account });
                 });
             }).catch(err => {
                 reject({ statusCode: -1, message: err });
