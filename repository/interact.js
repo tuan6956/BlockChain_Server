@@ -10,7 +10,7 @@ const insert = (redis, tweetId, publicKey, type, value) => {
                 reject("tweet undefined");
             } else {
                 if (type === 'react') {
-                    var objIndex = tweet.react.findIndex((obj => obj.publicKey === publicKey));
+                    var objIndex = tweet.react.findIndex((obj => obj.account.address === publicKey));
                     if(objIndex != -1) {
                         tweet.react[objIndex].type = value;
                     } else {

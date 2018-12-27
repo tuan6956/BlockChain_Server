@@ -39,7 +39,7 @@ class Block {
     }
     async init() {
         await this.syncBlock();
-        let client = RpcClient('wss://dragonfly.forest.network:443');
+        let client = RpcClient(configNetwork.RPC_URL);
         client.subscribe({ query: 'tm.event = \'NewBlock\'' }, async (event) => {
             await this.syncBlock();
         })
@@ -72,13 +72,15 @@ class Block {
             }
             accountRepo.insert(redis, 'GA6IW2JOWMP4WGI6LYAZ76ZPMFQSJAX4YLJLOQOWFC5VF5C6IGNV2IW7', accountTeacher );
         }
-        let client = RpcClient('wss://dragonfly.forest.network:443');
+        let client = RpcClient(configNetwork.RPC_URL);
 
         var emptyBlock = false;
         
         while (!emptyBlock) {
-            console.log('index block ', index);
             await client.block({ height: index++ }).then(async (block) => {
+                if(index % 1000 == 0) {
+                    console.log(index);
+                }
                 // console.log(block);
                 //await redis.insertList(configRedis.BLOCKS, JSON.stringify(block))
                 var txs = block.block.data.txs;
@@ -203,7 +205,7 @@ class Block {
                     //insert post and update account in cache
                     await tweetRepo.insert(redis, hashTrans, { 
                         tweetId: hashTrans, 
-                        account: account.address, 
+                        account: {address: account.address,name: account.name},
                         content: content, 
                         time: moment(block.block.header.time).unix(),
                         react: [],
@@ -252,20 +254,25 @@ class Block {
                 {
                     let objectId = trans.params.object;
                     console.log('interact ', objectId);
+                    
                     try {
-                        let content = PlainTextContent.decode(trans.params.content)
+                        let content = PlainTextContent.decode(Buffer.from(trans.params.content))
+                        console.log(conent);
                         if (content.type == 1) {
                            await interactRepo.insert(redis, objectId, accountKey, 'comment', content.text);
                         }
                     } catch (error) {
-                        
+                        console.log('comment', error);
                     }
                     try {
-                        let content = ReactContent.decode(trans.params.content)
+                        let content = ReactContent.decode(Buffer.from(trans.params.content))
+                        console.log(content);
+                        
                         if (content.type == 2) {
                             await interactRepo.insert(redis, objectId, accountKey, 'react', content.reaction);
                         }
                     } catch (error) {
+                        console.log('react', error);
                         
                     }
                     // await redis.insertHash(configRedis.ACCOUNTS, accountKey, account);
@@ -274,6 +281,7 @@ class Block {
             default:
                 break;
         }
+        
         await accountRepo.update(redis, accountKey, account);
         
         //await redis.insertHash(configRedis.ACCOUNTS, accountKey, account);

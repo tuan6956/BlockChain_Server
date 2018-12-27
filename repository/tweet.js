@@ -1,5 +1,5 @@
 const configRedis = require('../config/configRedis')
-
+const accountRepo = require('../repository/account')
 const tableTweet = configRedis.POST;
 
 const getOne = (redis, tweetId) => {
@@ -17,6 +17,9 @@ const getAll = (redis) => {
     return new Promise((resolve, reject) => {
         
         redis.getAllHash(tableTweet).then(value => {
+            // for(let i = 0; i < value.length; i++ ) {
+            //     accountRepo.
+            // }
             resolve(value);
         }).catch(err => 
             reject(err)

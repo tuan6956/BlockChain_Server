@@ -29,7 +29,7 @@ app.payment = new paymentModel(app.redis);
 app.tweet = new tweetModel(app.redis);
 app.transaction = new transactionModel(app.redis);
 
-//block.init();
+block.init();
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }

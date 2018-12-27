@@ -5,10 +5,11 @@ const configBanwidth = require('./config/configBandwidth')
 const helper = require('./helper')
 const publicKey = 'GDAIRCS73RR5LJXWA2IRQLIYDVUKG4TYRGV2WGPRS7LJBYXOVXRT3JOC';
 const privateKey = 'SC6EN5ILS7746C2UYEZCY4JPA2VKD5WG75ZJXM4LUSIRHMSFW3FA2ONC';
-const PlainTextContent = vstruct([
-  { name: 'type', type: vstruct.UInt8 },
-  { name: 'text', type: vstruct.VarString(vstruct.UInt16BE) },
-]);
+
+// const PlainTextContent = vstruct([
+//   { name: 'type', type: vstruct.UInt8 },
+//   { name: 'text', type: vstruct.VarString(vstruct.UInt16BE) },
+// ]);
 
 const encode = () => {
     const dataPayment = {
@@ -51,24 +52,11 @@ const encode = () => {
     hashTx = trans.encode(dataCreateAccount).toString('hex');
     console.log(hashTx);
 }
-function x(){
-    return new Promise((resolve, reject) => {
-       reject('123');
-    });
-}
-async function abc(){
-    var i = 0;
-    while(i++ < 10) {
-        await console.log(i);
-    }
-    console.log(11);
-}
-async function ss(){
-    await console.log('123');
-    console.log('456');
-}
-abc();
 
+var key = Keypair.fromSecret('SC6EN5ILS7746C2UYEZCY4JPA2VKD5WG75ZJXM4LUSIRHMSFW3FA2ONC');
+let publicKeyCre = key.publicKey();
+let secret = key.secret();
+console.log(publicKeyCre);
 // try {
 //     var a = StrKey.isValidEd25519SecretSeed('SC6EN5ILS7746C2UYEZCY4JPA2VKD5WG75ZJXM4LUSIRHMSFW3FA2ONC');
 // } catch (error) {
